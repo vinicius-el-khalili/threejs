@@ -1,95 +1,89 @@
-import Image from 'next/image'
+"use client"
+
 import styles from './page.module.css'
+import { useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+class Sprite {
+  x:number
+  y:number
+  z:number
+  t:number
+  constructor(x:number,y:number,z:number){
+    this.x = x
+    this.y = y
+    this.z = z
+    this.t=0
+
+  }
+  move(delta:number){
+
+    this.t+=delta
+
+  }
+  
+}
+
+const Box = (props:any) => {
+
+  const ref = useRef<null|any>(null)
+  const [hovered, hover] = useState(false)
+  const [clicked, click] = useState(false)
+  const sprite = new Sprite(0,0,0)
+  
+  useFrame((state, delta)=>{
+
+    sprite.move(delta)
+    ref.current.position.x = sprite.x
+    ref.current.position.y = sprite.y
+    ref.current.position.z = sprite.z
+    ref.current.rotation.x += delta
+    ref.current.rotation.y -= delta
+    ref.current.rotation.z -= .5*delta
+
+  })
+
+  return (
+
+  <>
+
+  <mesh
+  {...props}
+  ref={ref}
+  scale={clicked?1.5:1}
+  onClick={(e:any)=>{e.stopPropagation();hover(true)}}>
+
+    <sphereGeometry />
+    <boxGeometry/>
+    <meshStandardMaterial color={"white"} metalness={0} roughness={5}/>
+
+  </mesh>
+
+  </>
+
+)
+}
+
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+  return <>
+  
+    <main>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
+      <Canvas className={styles.Canvas}>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        <ambientLight intensity={.1} />
+        <spotLight position={[-10,-10,10]} angle={0.15} penumbra={20} decay={0} intensity={10} />
+        <pointLight position={[12,12,12]} decay={0} intensity={.5} />
+        <Box/>
+
+      </Canvas>
+
     </main>
-  )
+  
+  </>
 }
